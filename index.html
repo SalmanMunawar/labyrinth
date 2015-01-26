@@ -356,6 +356,8 @@
 
                             if (response.writing === "xx" && response.order === -1) {
 
+                                writing.text("");
+
                                 if ($.inArray(roomId, that.brokenLights) === -1) {
                                     that.brokenLights.push(roomId);
                                 }
