@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Labyrinth</title>
+
+    <!--Font: Lato-->
+    <link href='//fonts.googleapis.com/css?family=Lato:400,900' rel='stylesheet' type='text/css'>
+
+    <!--Icon: Font Awesome-->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+    <!--Set initial scale to one and turn off pinch, zoom-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="author" content="Salman Munawar" />
+
+    <style>
+        * {
+            padding: 0;
+            margin: auto;
+            box-sizing: border-box;
+        }
+
+        body {
+            color: #2e2e2e;
+            font-family: 'lato', sans-serif;
+            font-weight: 400;
+            background: #F1E9DE;
+            font-size: 16px;
+        }
+
+        header {
+            text-align: center;
+            padding: 1em;
+        }
+
+        main {
+            width: 20em;
+        }
+
+        p {
+            line-height: 1.5em;
+        }
+
+        .current-room {
+            width: 16em;
+            height: 16em;
+            background: #fff;
+            text-align: center;
+            line-height: 20em;
+            color: orange;
+            border: solid #ccc 1px;
+            box-shadow: 0 0 0 .5em #ddd;
+        }
+
+        .current-room i {
+            font-size: 8em;
+            position: relative;
+        }
+
+        .writing {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: #ddd;
+            position: absolute;
+            top: 1.5em;
+            left: 2em;
+        }
+
+        .visited {
+            background: #aaa;
+        }
+
+        .labyrinth {
+            position: relative;
+            padding: 2em;
+        }
+
+        .east, .west, .north, .south {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4em;
+            height: 4em;
+            border-radius: 4em;
+            line-height: 4em;
+            text-align: center;
+            font-weight: 900;
+            color: #eee;
+            box-shadow: 0 0 0 .5em #F1E9DE;
+            cursor: pointer;
+        }
+
+        .east i, .west i, .north i, .south i {
+            font-size: 2em;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .show {
+            display: inline-block;
+        }
+
+        .on {
+            color: orange;
+        }
+
+        .off {
+            color: #eee;
+        }
+
+        .north {
+            background: deepskyblue;
+            left: 50%;
+            top: 2em;
+            margin: -2em;
+        }
+
+        .south {
+            background: crimson;
+            left: 50%;
+            margin: -2em;
+            bottom: 2em;
+            top: auto;
+        }
+
+        .east {
+            background: yellowgreen;
+            left: 0;
+            top: 50%;
+            margin-top: -2em;
+        }
+
+        .west {
+            background: mediumpurple;
+            left: auto;
+            right: 0;
+            top: 50%;
+            margin-top: -2em;
+        }
+
+        .btn {
+            width: 50%;
+            display: inline-block;
+        }
+
+        aside {
+            text-align: center;
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            background: rgba(0, 0, 0, .95);
+            display: block;
+        }
+
+        aside h1 {
+            color: #fff;
+            font-size: 1.75em;
+        }
+
+        .btn {
+            width: 40%;
+            display: inline-block;
+            background: none;
+            border: 2px solid #2e2e2e;
+            height: 3em;
+            line-height: 1em;
+            border-radius: 10em;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            color: #fff;
+            background: #2e2e2e;
+        }
+
+        .cta {
+            color: #fff;
+            background: #1D9C73;
+        }
+
+        .cta:hover {
+            background: #198562;
+        }
+
+        .report {
+            width: 18em;
+            margin: 6em auto auto auto;
+        }
+
+        .log {
+            margin: 2em auto;
+            color: #666;
+        }
+
+        .log strong {
+            color: #fff;
+        }
+
+        .actions {
+            margin-top: 1.5em;
+            text-align: center;
+        }
+
+        .action {
+            width: 3em;
+            height: 3em;
+            border-radius: 3em;
+            line-height: 3em;
+            text-align: center;
+            cursor: pointer;
+            display: inline-block;
+            margin: auto 3.125em;
+        }
+
+        .action i {
+            font-size: 2em;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<main>
+    <header>
+        <h1><i class="fa fa-stumbleupon"></i> Labyrinth</h1>
+    </header>
+
+    <section class="labyrinth">
+        <div class="exit east hide" data-move="east">
+            <i class="fa fa-hand-o-left"></i>
+        </div>
+        <div class="exit north hide" data-move="north">
+            <i class="fa fa-hand-o-up"></i>
+        </div>
+
+
+        <div class="current-room">
+            <i class="light fa  fa-lightbulb-o"></i>
+            <p class="writing"></p>
+        </div>
+
+
+        <div class="exit west hide" data-move="west">
+            <i class="fa fa-hand-o-right"></i>
+        </div>
+        <div class="exit south hide"  data-move="south">
+            <i class="fa fa-hand-o-down"></i>
+        </div>
+    </section>
+    <div class="actions">
+        <span class="action" data-action="back"><i class="fa fa-level-up"></i></span>
+        <span class="action" data-action="view"><i class="fa fa-edit"></i></span>
+    </div>
+</main>
+
+<aside class="status hide">
+    <div class="report">
+        <h1>Maintenance Report</h1>
+        <div class="log"></div>
+        <button class="btn" data-action="cancel"><i class="fa fa-close"></i> Cancel</button>
+        <button class="btn cta" data-action="send"><i class="fa fa-space-shuttle"></i> Send</button>
+    </div>
+</aside>
+
+<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script>
+    /*globals $, window, document, angular, console, alert, jQuery*/
+    (function($) {
+
+        "use strict";
+
+        function Worker(id) {
+            this.id = id || "smunawar100@gmail.com";
+            this.visited = [];
+            this.brokenLights = [];
+            this.workingLights = {};
+            this.currentRoom = '';
+            this.exits = '';
+        }
+
+        Worker.prototype = (function () {
+
+            return {
+
+                start: function () {
+
+                    var that = this, who = this.id, currentRoom = $(".current-room");
+
+                    //Start Game
+                    $.ajax({
+                        url: "proxy/server.php",
+                        type: "GET",
+                        data: {
+                            endpoint: "start",
+                            id: who
+                        },
+                        dataType: "json",
+                        success: function (response) {
+
+                            if($.inArray(response.roomId, that.visited) === -1) {
+                                that.visited.push(response.roomId);
+                                currentRoom.removeClass('visited');
+                            } else {
+                                currentRoom.addClass('visited');
+                            }
+
+                            that.currentRoom = response.roomId;
+                            that.checkLights(response.roomId, who);
+                            that.checkExits(response.roomId, who);
+
+                        },
+                        error: function (response) {
+                            console.log(response)
+                        }
+                    });
+
+                },
+                checkLights: function (roomId, who) {
+                    /*
+                     API: /wall?roomId=<roomId> [GET]
+
+                     Working Lights
+                     returns {
+                     writing: '<string>'
+                     order: <number>
+                     }
+
+                     If the lights aren't working
+                     returns {
+                     writing: 'xx'
+                     order: -1
+                     }
+
+                     */
+
+                    var that = this, light = $(".light").addClass("off"), writing = $(".writing");
+
+                    //Checklights
+                    $.ajax({
+                        url: "proxy/server.php",
+                        type: "GET",
+                        data: {
+                            endpoint: "wall",
+                            roomId: roomId,
+                            id: who
+                        },
+                        dataType: "json",
+                        success: function (response) {
+
+                            if (response.writing === "xx" && response.order === -1) {
+
+                                if ($.inArray(roomId, that.brokenLights) === -1) {
+                                    that.brokenLights.push(roomId);
+                                }
+
+                                light.removeClass("on").addClass("off");
+
+                            } else {
+
+                                writing.text(response.writing + response.order);
+
+                                light.removeClass("off").addClass("on");
+                                that.workingLights[roomId] = response;
+
+                            }
+
+                        },
+                        error: function (response) {
+                            console.log(response)
+                        }
+                    });
+
+
+                },
+                move: function (exit) {
+
+                    //API: move?roomId=<roomId>&exit=<exit> [GET]
+
+                    var that = this, who = this.id, currentRoom = $(".current-room");
+
+                    //Move
+                    $.ajax({
+                        url: "proxy/server.php",
+                        type: "GET",
+                        data: {
+                            endpoint: "move",
+                            exit: exit,
+                            roomId: that.currentRoom,
+                            id: who
+                        },
+                        dataType: "json",
+                        success: function (response) {
+
+                            if($.inArray(response.roomId, that.visited) === -1) {
+                                that.visited.push(response.roomId);
+                                currentRoom.removeClass('visited');
+                            } else {
+                                currentRoom.addClass('visited');
+                            }
+
+                            that.currentRoom = response.roomId;
+                            that.checkLights(response.roomId, who);
+                            that.checkExits(response.roomId, who);
+
+                        },
+                        error: function (response) {
+                            console.log(response)
+                        }
+                    });
+
+                },
+                checkExits: function (roomId, who) {
+
+                    //API: /exits?roomId=<roomId>
+                    //Start Game
+
+                    var that = this;
+
+                    $.ajax({
+                        url: "proxy/server.php",
+                        type: "GET",
+                        data: {
+                            endpoint: "exits",
+                            roomId: roomId,
+                            id: who
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            that.exits = response.exits;
+                            that.updateView(response.exits);
+                        },
+                        error: function (response) {
+                            console.log(response)
+                        }
+                    });
+
+                },
+                updateView: function (exits) {
+
+                    var
+                            east = $(".east"),
+                            west = $(".west"),
+                            north = $(".north"),
+                            south = $(".south");
+
+                    if (exits) {
+
+                        if ($.inArray("east", exits) !== -1) {
+                            east.removeClass("hide").addClass("show");
+                        } else {
+                            east.removeClass("show").addClass("hide");
+                        }
+
+                        if ($.inArray("west", exits) !== -1) {
+                            west.removeClass("hide").addClass("show");
+                        } else {
+                            west.removeClass("show").addClass("hide");
+                        }
+
+                        if ($.inArray("north", exits) !== -1) {
+                            north.removeClass("hide").addClass("show");
+                        } else {
+                            north.removeClass("show").addClass("hide");
+                        }
+
+                        if ($.inArray("south", exits) !== -1) {
+                            south.removeClass("hide").addClass("show");
+                        } else {
+                            south.removeClass("show").addClass("hide");
+                        }
+
+                    } else {
+
+                        east.removeClass("show").addClass("hide");
+                        west.removeClass("show").addClass("hide");
+                        north.removeClass("show").addClass("hide");
+                        south.removeClass("show").addClass("hide");
+
+                    }
+
+                },
+                notes: function () {
+
+                    var log = $(".log").addClass("show");
+
+                    $(".status").removeClass("hide").addClass("show");
+
+                    console.log(this.visited);
+                    console.log(this.brokenLights);
+                    console.log(this.workingLights);
+
+                    log.html("<p>So far you have explored <strong>" + this.visited.length + "</strong> room(s) and found <strong>" + this.brokenLights.length + "</strong> light(s) that were broken. Would you like to report your findings?</p>");
+
+                },
+                send: function () {
+
+                    /*
+                     API: /report [POST]
+
+                     body {
+                     roomIds: [array of room ids whose lights were broken],
+                     challenge: 'challenge code'
+                     }
+
+                     * */
+
+                    var send = $(".cta"), log = $(".log"), lights = [], writing = [];
+
+                    for(var room in this.workingLights) {
+                        lights.push(this.workingLights[room]);
+                    }
+
+                    lights.sort(function(a, b) { return a.order - b.order; });
+
+                    console.log(lights);
+
+                    for(var ii = 0, len = lights.length; ii < len; ii++) {
+                        writing.push(lights[ii].writing);
+                    }
+
+                    $.ajax({
+                        url: "proxy/server.php",
+                        type: "GET",
+                        data: {
+                            endpoint: "send",
+                            roomIds: this.brokenLights.join(),
+                            challenge: writing.join(""),
+                            id: this.id
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            log.html(response.responseText);
+                        },
+                        error: function (response) {
+                            log.html(response.responseText);
+                        }
+                    });
+                }
+
+            }
+
+        }());
+
+        var salman = new Worker("smunawar100@gmail.com");
+        salman.start();
+
+        //Controls
+        var direction = $(".labyrinth");
+        direction.on("click", ".exit", function () {
+
+            var direction = $(this).data("move");
+            salman.move(direction);
+
+        });
+
+        //Actions: Got to starting point and view report
+        var actions = $(".actions");
+        actions.on("click", "span", function () {
+
+            var action = $(this).data("action");
+
+            if(action === "back") {
+                salman.start();
+            }
+
+            if(action === "view") {
+                salman.notes();
+            }
+
+        });
+
+        //Send Report
+        var report = $(".report");
+        report.on("click", ".btn", function () {
+
+            var action = $(this).data("action");
+
+            if(action === "cancel") {
+                $(".status").removeClass("show").addClass('hide');
+            }
+
+            if(action === "send") {
+                salman.send();
+            }
+
+        });
+
+    }(jQuery));
+</script>
+</body>
+</html>
